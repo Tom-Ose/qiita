@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Test</title>
+</head>
+<body>
+  <div contenteditable='true' id="markdown">
+  </div>
+
+  <script>
+    const element = document.getElementById('markdown')
+    element.focus()
+
+    element.addEventListener('keyup', (event) => {
+      const currentLine = window.getSelection().getRangeAt(0).endContainer.data || ''
+
+      if (!event.shiftKey && event.keyCode === 13) {
+         if (!focusingOnOrderElement()) {
+          document.execCommand('formatblock', false, 'div')
+        }
+      }else if(event.keyCode === 32){ // スペースキー押下後に判定
+        if (currentLine.match(/^#{1}\xA0+$/)) { // 見出し
+          document.execCommand('formatblock', false, 'h1')
+          clearCurrentLine()
+        } else if (currentLine.match(/^#{2}\xA0+$/)){
+          document.execCommand('formatblock', false, 'h2')
+          clearCurrentLine()
+        } else if (currentLine.match(/^#{3}\xA0+$/)) {
+          document.execCommand('formatblock', false, 'h3')
+          clearCurrentLine()
+        } else if (currentLine.match(/^#{4}\xA0+$/)) {
+          document.execCommand('formatblock', false, 'h4')
+          clearCurrentLine()
+        } else if (currentLine.match(/^#{5}\xA0+$/)) {
+          document.execCommand('formatblock', false, 'h5')
+          clearCurrentLine()
+        } else if (currentLine.match(/^#{6}\xA0+$/)) {
+          document.execCommand('formatblock', false, 'h6')
+          clearCurrentLine()
+        } else if (currentLine.match(/^>\xA0+$/)) { // 引用
+          document.execCommand('formatblock', false, 'blockquote')
+          clearCurrentLine()
+        } else if (currentLine.match(/^\d+\.\xA0+$/)) { // 順序付きリスト
+          document.execCommand('insertOrderedList')
+          clearCurrentLine('')
+        } else if (currentLine.match(/^[\-+*]\xA0+$/)) { // リスト
+          document.execCommand('insertUnorderedList')
+          clearCurrentLine('')
+        }
+      }
+    })
+
+    const clearCurrentLine = (clearCharacter = '\xA0') => {
+      window.getSelection().getRangeAt(0).endContainer.parentNode.innerText = clearCharacter
+    }
+
+    const focusingOnOrderElement = () => {
+      const element_name = window.getSelection().getRangeAt(0).endContainer.parentNode.nodeName
+      return (element_name === 'LI' || element_name === 'UL' || element_name === 'OL')
+    }
+
+  </script>
+
+  <style>
+     #markdown{
+       height: 100vh;
+       width: 100vh;
+     }
+  </style>
+</body>
+</html>
